@@ -460,11 +460,164 @@ Example Code:
 ```
 
 
-Step 13 - Write a Counter with Redux
+Example Code: 
+```
+    const INCREMENT = 'INCREMENT'; 
+    const DECREMENT = 'DECREMENT'; 
+
+    const counterReducer = (state = 0, action) => {
+        switch(action.type){
+            case INCREMENT:
+            return state +1;
+            case DECREMENT:
+            return state -1;
+            default:
+            return state;
+        }
+    }; 
+
+    const incAction = () => {
+        return {type: INCREMENT}
+    };
+
+    const decAction = () => {
+        return {type: DECREMENT}
+    };
+
+    const store = Redux.createStore(counterReducer);
+```
 
 
+**Immutable state** means that you never modify state directly, instead, you return a new copy of state
+
+Redux uses pure **reducer functions** — given the same state and action, they should always return the same next state.
+
+If you mutate the state directly, you’re changing the original object, so previous state values are lost.
+
+With **immutability**, you always create a new object for the new state, so Redux can clearly know what changed.
+
+JavaScript (especially ES6) provides several useful tools you can use to enforce the **immutability** of your state, whether it is a **string**, **number**, **array**, or **object**. 
+
+Note that **strings** and **numbers** are **primitive values** and are **immutable** by nature. In other words, 3 is always 3. 
+You cannot change the value of the number 3. 
+
+An **array** or **object**, however, is **mutable**. 
+
+In practice, your **state** will probably consist of an **array** or **object**, as these are useful **data structures** for representing many types of information
+
+Example Code: 
+```
+    const ADD_TO_DO = 'ADD_TO_DO';
+    const todos = [
+        'Go to the store',
+        'Clean the house',
+        'Cook dinner',
+        'Learn to code',
+    ];
+    const immutableReducer = (state = todos, action) => {
+        switch(action.type) {
+            case ADD_TO_DO:
+                return [...state, action.todo];
+                //or -> state.concat(action.todo);
+            default:
+                return state;
+        }
+    };
+    const addToDo = (todo) => {
+        return {
+            type: ADD_TO_DO,
+            todo
+        }
+    }
+    const store = Redux.createStore(immutableReducer);
+```
 
 
+One solution from ES6 to help enforce state immutability in Redux is the **spread operator**: .... 
+
+If you have an array myArray and write:
+Example Code: 
+```
+    let newArray = [...myArray];
+```
+
+newArray is now a clone of myArray. 
+
+Both arrays still exist separately in memory. 
+
+If you perform a mutation like newArray.push(5), myArray doesn't change.  
+
+To clone an array but add additional values in the new array, you could write:
+Example Code: 
+```
+    let newArray = [...myArray, 'new value'];
+```
+
+This would return a new array composed of the values in myArray and the string new value as the last value. 
+
+The spread syntax can be used multiple times in array composition like this, but it's important to note that it only makes a shallow copy of the array.
+
+That is to say, it only provides immutable array operations for **one-dimensional arrays**
 
 
+Other useful JavaScript methods include **slice()** and **concat()**
+
+Example Code: 
+```
+    const immutableReducer = (state = [0,1,2,3,4,5], action) => {
+        switch(action.type) {
+            case 'REMOVE_ITEM':
+            return [...state.slice(0, action.index), ...state.slice(action.index + 1)]
+            default:
+            return state;
+        }
+    };
+    const removeItem = (index) => {
+        return {
+            type: 'REMOVE_ITEM',
+            index
+        }
+    }
+    const store = Redux.createStore(immutableReducer);
+```
+
+
+When state is an object, a useful tool for handling objects is the **Object.assign()** utility. 
+
+**Object.assign()** takes a **target object** and **source objects** and maps properties from the source objects to the target object
+
+Any matching properties are **overwritten** by properties in the source objects.
+
+This behavior is commonly used to make shallow copies of objects by passing an **empty object** as the first argument followed by the object(s) you want to copy. 
+
+Example Code: 
+```
+    const newObject = Object.assign({}, obj1, obj2);
+```
+
+This creates newObject as a new object, which contains the properties that currently exist in obj1 and obj2
+
+Example Code: 
+```
+    const defaultState = {
+        user: 'CamperBot',
+        status: 'offline',
+        friends: '732,982',
+        community: 'freeCodeCamp'
+    };
+    const immutableReducer = (state = defaultState, action) => {
+        switch(action.type) {
+            case 'ONLINE':
+            return Object.assign({}, state, {status: "online"})
+            default:
+            return state;
+        }
+    };
+    const wakeUp = () => {
+        return {
+            type: 'ONLINE'
+        }
+    };
+    const store = Redux.createStore(immutableReducer);
+```
 
